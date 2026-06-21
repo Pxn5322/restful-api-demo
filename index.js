@@ -163,6 +163,22 @@ app.delete("/posts/author/:authorName", async (req, res) => {
   }
 });
 
+app.get('/posts/dates/:startDate/:endDate', async (req, res) => {
+  const { startDate, endDate } = req.params;
+  const client = await pool.connect();
+  try {
+    const query = 'SELECT * FROM posts WHERE created_at BETWEEN $1 AND $2';
+    const result = await client.query(query, [startDate, endDate]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "/index.html"));
 });
